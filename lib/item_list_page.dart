@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:project/chat_List.dart';
 import 'package:project/constants.dart';
 import 'package:project/item_basket_page.dart';
 import 'package:project/item_details_page.dart';
@@ -24,6 +25,7 @@ class _ItemListPageState extends State<ItemListPage> {
 
   ScrollController _scrollController = ScrollController();
   int _currentIndex = 0;
+  String _selectedSort = "즐겨찾기 순"; // 기본 정렬 기준
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +34,27 @@ class _ItemListPageState extends State<ItemListPage> {
         title: const Text("제품 리스트"),
         centerTitle: true,
         actions: [
+          DropdownButton<String>(
+            value: _selectedSort,
+            underline: const SizedBox(),
+            icon: const Icon(Icons.sort, color: Colors.white),
+            dropdownColor: Colors.blue,
+            items: const [
+              DropdownMenuItem(
+                value: "즐겨찾기 순",
+                child: Text("즐겨찾기 순", style: TextStyle(color: Colors.white)),
+              ),
+              DropdownMenuItem(
+                value: "가격순",
+                child: Text("가격순", style: TextStyle(color: Colors.white)),
+              ),
+            ],
+            onChanged: (value) {
+              setState(() {
+                _selectedSort = value!;
+              });
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.account_circle),
             onPressed: () {
@@ -54,7 +77,9 @@ class _ItemListPageState extends State<ItemListPage> {
         children: [
           Expanded(
             child: StreamBuilder(
-              stream: productListRef.orderBy("productNo").snapshots(),
+              stream: (_selectedSort == "가격순")
+                  ? productListRef.orderBy("price", descending: true).snapshots()
+                  : productListRef.orderBy("productNo").snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return GridView(
@@ -99,6 +124,9 @@ class _ItemListPageState extends State<ItemListPage> {
             ));
           } else if (index == 2) {
             // 마이페이지로 이동 (추후 추가)
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => ChatListPage(),
+            ));
           }
         },
         items: const [

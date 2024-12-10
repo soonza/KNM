@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'authentication.dart'; // 로그인 화면 import
+import 'constants.dart'; // sharedPreferences 초기화 관련 파일
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  await initializeSharedPreferences();
+
   runApp(const MyApp());
 }
 
